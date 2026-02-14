@@ -1,3 +1,4 @@
+// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -11,7 +12,6 @@ import config from './config/config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      cache: true,
       load: [config],
     }),
 
@@ -19,21 +19,25 @@ import config from './config/config';
       imports: [ConfigModule],
       inject: [ConfigService],
       global: true,
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('jwt.secret'),
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('jwt.secret'),
         signOptions: { expiresIn: '1h' },
       }),
     }),
 
+    // MongoDB connection
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const uri = config.get<string>('database.connectionString');
+      useFactory: (configService: ConfigService) => {
+        const uri = configService.get<string>('database.connectionString');
         if (!uri) {
-          throw new Error('MONGO_URL is not defined');
+          throw new Error('MongoDB connection string is not defined!');
         }
-        return { uri };
+        return {
+          uri,
+          serverSelectionTimeoutMS: 5000, // optional: fail fast if DB unreachable
+        };
       },
     }),
 
