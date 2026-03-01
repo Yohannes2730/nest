@@ -3,5 +3,4 @@ export default () => ({
   database: { connectionString: process.env.MONGO_URL },
   
 });
-  console.log("what are you doing?")
 
