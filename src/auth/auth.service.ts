@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import {nanoid} from 'nanoid';
 import { ResetToken } from './Schema/resetToken.schema';
-import { MailService } from './services/mail.service';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,7 +18,6 @@ export class AuthService {
     @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshToken>,
     @InjectModel(ResetToken.name) private resetTokenModel: Model<ResetToken>,
     private jwtService: JwtService,
-    private mailService: MailService
   ) {}
 
   async register(registerData: registerdto) {
@@ -62,12 +61,11 @@ export class AuthService {
     const resetToken = nanoid(64);
     if (user) {
    const expiryDate = new Date()
-    expiryDate.setHours(expiryDate.getHours() + 1); // Token valid for 1 hour
+    expiryDate.setHours(expiryDate.getHours() + 1); 
     await this.resetTokenModel.create({
        token: resetToken, 
        userId: user._id, 
        expiresAt: expiryDate });
-       this.mailService.sendResetPasswordEmail(email, resetToken);
     }
   }
   async resetPassword(resetToken: string, newPassword: string) {
@@ -98,7 +96,7 @@ export class AuthService {
   }
 
   async storeRefreshToken(token: string, userId: string) {
-    const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); 
     await this.refreshTokenModel.create({ token, userId, expiresAt: expiryDate });
   }
 }

@@ -35,9 +35,8 @@ import config from './config/config';
           throw new Error('MongoDB connection string is not defined!');
         }
         return {
-          uri,
-          serverSelectionTimeoutMS: 5000, // optional: fail fast if DB unreachable
-        };
+          uri
+      };
       },
     }),
 
