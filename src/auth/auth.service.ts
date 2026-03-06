@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { registerdto } from './dto/register.dto';
 import { logindto } from './dto/login.dto';
 import { Model } from 'mongoose';
@@ -8,14 +12,15 @@ import { RefreshToken } from './Schema/RefreshToken.schema';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import {nanoid} from 'nanoid';
+import { nanoid } from 'nanoid';
 import { ResetToken } from './Schema/resetToken.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshToken>,
+    @InjectModel(RefreshToken.name)
+    private refreshTokenModel: Model<RefreshToken>,
     @InjectModel(ResetToken.name) private resetTokenModel: Model<ResetToken>,
     private jwtService: JwtService,
   ) {}
@@ -28,7 +33,11 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new this.userModel({ name, email, password: hashedPassword });
+    const newUser = new this.userModel({
+      name,
+      email,
+      password: hashedPassword,
+    });
     return newUser.save();
   }
 
@@ -44,13 +53,18 @@ export class AuthService {
     const tokens = await this.generateToken(user._id.toString());
     return { tokens, userId: user._id.toString() };
   }
-  
-  async changePassword(userId: string, oldPassword: string, newPassword: string) {
+
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
     const user = await this.userModel.findById(userId);
-    if (!user) throw new BadRequestException('User not found'); 
+    if (!user) throw new BadRequestException('User not found');
 
     const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
-    if (!isOldPasswordValid) throw new BadRequestException('Old password is incorrect');
+    if (!isOldPasswordValid)
+      throw new BadRequestException('Old password is incorrect');
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
@@ -60,18 +74,22 @@ export class AuthService {
     const user = await this.userModel.findOne({ email });
     const resetToken = nanoid(64);
     if (user) {
-   const expiryDate = new Date()
-    expiryDate.setHours(expiryDate.getHours() + 1); 
-    await this.resetTokenModel.create({
-       token: resetToken, 
-       userId: user._id, 
-       expiresAt: expiryDate });
+      const expiryDate = new Date();
+      expiryDate.setHours(expiryDate.getHours() + 1);
+      await this.resetTokenModel.create({
+        token: resetToken,
+        userId: user._id,
+        expiresAt: expiryDate,
+      });
     }
   }
   async resetPassword(resetToken: string, newPassword: string) {
-    const token = await this.resetTokenModel.findOne({ token: resetToken, 
-      expiresAt: { $gt: new Date() } });
-    if (!token) throw new UnauthorizedException('Invalid or expired reset token');
+    const token = await this.resetTokenModel.findOne({
+      token: resetToken,
+      expiresAt: { $gt: new Date() },
+    });
+    if (!token)
+      throw new UnauthorizedException('Invalid or expired reset token');
     const user = await this.userModel.findById(token.userId);
     if (!user) throw new BadRequestException('User not found');
     user.password = await bcrypt.hash(newPassword, 10);
@@ -82,7 +100,8 @@ export class AuthService {
       token: refreshToken,
       expiresAt: { $gt: new Date() },
     });
-    if (!token) throw new UnauthorizedException('Invalid or expired refresh token');
+    if (!token)
+      throw new UnauthorizedException('Invalid or expired refresh token');
 
     return this.generateToken(token.userId.toString());
   }
@@ -96,7 +115,11 @@ export class AuthService {
   }
 
   async storeRefreshToken(token: string, userId: string) {
-    const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); 
-    await this.refreshTokenModel.create({ token, userId, expiresAt: expiryDate });
+    const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await this.refreshTokenModel.create({
+      token,
+      userId,
+      expiresAt: expiryDate,
+    });
   }
 }

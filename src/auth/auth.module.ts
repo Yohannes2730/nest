@@ -11,10 +11,10 @@ import { ResetToken, ResetTokenSchema } from './Schema/resetToken.schema';
     MongooseModule.forFeature([
       { name: User.name, schema: userSchema },
       { name: RefreshToken.name, schema: RefreshTokenSchema },
-      {name : ResetToken.name, schema: ResetTokenSchema}
+      { name: ResetToken.name, schema: ResetTokenSchema },
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService ],
+  providers: [AuthService],
 })
 export class AuthModule {}

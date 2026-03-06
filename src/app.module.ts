@@ -25,8 +25,6 @@ import config from './config/config';
         signOptions: { expiresIn: '1h' },
       }),
     }),
-
-    // MongoDB connection
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

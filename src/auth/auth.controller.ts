@@ -28,7 +28,10 @@ export class AuthController {
       return await this.authService.register(registerData);
     } catch (err) {
       console.error('Register Error:', err.message);
-      throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -54,12 +57,22 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Put('change-password')
-  async changePassword(@Body() dto: ChangePasswordDto, @Req() req: Request & { user: { id: string } }) {
+  async changePassword(
+    @Body() dto: ChangePasswordDto,
+    @Req() req: Request & { user: { id: string } },
+  ) {
     try {
-      return await this.authService.changePassword(req.user.id, dto.oldPassword, dto.newPassword);
+      return await this.authService.changePassword(
+        req.user.id,
+        dto.oldPassword,
+        dto.newPassword,
+      );
     } catch (err) {
       console.error('Change Password Error:', err.message);
-      throw new HttpException('Failed to change password', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to change password',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -69,17 +82,26 @@ export class AuthController {
       return await this.authService.forgotPassword(dto.email);
     } catch (err) {
       console.error('Forgot Password Error:', err.message);
-      throw new HttpException('Failed to send reset email', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to send reset email',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Put('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
     try {
-      return await this.authService.resetPassword(dto.resetToken, dto.newPassword);
+      return await this.authService.resetPassword(
+        dto.resetToken,
+        dto.newPassword,
+      );
     } catch (err) {
       console.error('Reset Password Error:', err.message);
-      throw new HttpException('Failed to reset password', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to reset password',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
