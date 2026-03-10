@@ -1,31 +1,29 @@
-import { Entity, ObjectIdColumn, ObjectId, Column } from 'typeorm';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-@Entity('email_otps')
+
+@Schema({ collection: 'email_otps', timestamps: true })
 export class EmailOtp {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @Prop({ required: true })
   email: string;
 
-  @Column()
+  @Prop({ required: true })
   otpHash: string;
 
-  @Column()
+  @Prop({ required: true })
   expiresAt: Date;
 
-  @Column({ default: false })
+  @Prop({ default: false })
   verified: boolean;
 
-  @Column()
-  createdAt: Date;
-
-  @Column({ default: 0 })
+  @Prop({ default: 0 })
   resendCount: number;
 
-  @Column({ default: 0 })
+  @Prop({ default: 0 })
   attemptCount: number;
 
-  @Column()
+  @Prop()
   lastResendAt: Date;
 }
+
+export const EmailOtpSchema = SchemaFactory.createForClass(EmailOtp);

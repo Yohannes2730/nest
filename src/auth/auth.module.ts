@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RefreshToken, RefreshTokenSchema } from './Schema/RefreshToken.schema';
 import { User, userSchema } from './Schema/user.schema';
 import { ResetToken, ResetTokenSchema } from './Schema/resetToken.schema';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
@@ -12,7 +13,10 @@ import { ResetToken, ResetTokenSchema } from './Schema/resetToken.schema';
       { name: User.name, schema: userSchema },
       { name: RefreshToken.name, schema: RefreshTokenSchema },
       { name: ResetToken.name, schema: ResetTokenSchema },
+
     ]),
+        EmailModule, 
+
   ],
   controllers: [AuthController],
   providers: [AuthService],

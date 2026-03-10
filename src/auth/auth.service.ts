@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { nanoid } from 'nanoid';
 import { ResetToken } from './Schema/resetToken.schema';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +24,7 @@ export class AuthService {
     private refreshTokenModel: Model<RefreshToken>,
     @InjectModel(ResetToken.name) private resetTokenModel: Model<ResetToken>,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async register(registerData: registerdto) {
@@ -37,15 +39,24 @@ export class AuthService {
       name,
       email,
       password: hashedPassword,
+      verified: false, 
     });
-    return newUser.save();
+
+    await newUser.save();
+    await this.emailService.sendOtp(email);
+
+    return { message: 'User registered successfully. OTP sent to email.' };
   }
 
+  // Login
   async login(credential: logindto) {
     const { email, password } = credential;
 
     const user = await this.userModel.findOne({ email });
     if (!user) throw new BadRequestException('Invalid credentials');
+
+    if (!user?.verified)
+      throw new BadRequestException('Email not verified. Please verify first.');
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) throw new BadRequestException('Invalid credentials');
@@ -53,7 +64,7 @@ export class AuthService {
     const tokens = await this.generateToken(user._id.toString());
     return { tokens, userId: user._id.toString() };
   }
-
+  // Change password
   async changePassword(
     userId: string,
     oldPassword: string,
@@ -70,42 +81,50 @@ export class AuthService {
     user.password = hashedNewPassword;
     return user.save();
   }
+
+  // Forgot password
   async forgotPassword(email: string) {
     const user = await this.userModel.findOne({ email });
+    if (!user) throw new BadRequestException('User not found');
+
     const resetToken = nanoid(64);
-    if (user) {
-      const expiryDate = new Date();
-      expiryDate.setHours(expiryDate.getHours() + 1);
-      await this.resetTokenModel.create({
-        token: resetToken,
-        userId: user._id,
-        expiresAt: expiryDate,
-      });
-    }
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() + 1);
+
+    await this.resetTokenModel.create({
+      token: resetToken,
+      userId: user._id,
+      expiresAt: expiryDate,
+    });
   }
+
   async resetPassword(resetToken: string, newPassword: string) {
     const token = await this.resetTokenModel.findOne({
       token: resetToken,
       expiresAt: { $gt: new Date() },
     });
+
     if (!token)
       throw new UnauthorizedException('Invalid or expired reset token');
+
     const user = await this.userModel.findById(token.userId);
     if (!user) throw new BadRequestException('User not found');
+
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
   }
+
   async refreshTokens(refreshToken: string) {
     const token = await this.refreshTokenModel.findOne({
       token: refreshToken,
       expiresAt: { $gt: new Date() },
     });
+
     if (!token)
       throw new UnauthorizedException('Invalid or expired refresh token');
 
     return this.generateToken(token.userId.toString());
   }
-
   async generateToken(userId: string) {
     const accessToken = this.jwtService.sign({ userId }, { expiresIn: '1h' });
     const refreshToken = uuidv4();

@@ -17,10 +17,12 @@ import { AuthGuard } from '../gards/auth.gards';
 import { ForgotPasswordDto } from './dto/ForgotPassword.dto';
 import { ResetPasswordDto } from './dto/resetePassword.dto';
 import { Request } from 'express';
+import { EmailService } from '../email/email.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, 
+    private readonly emailService: EmailService) {}
 
   @Post('register')
   async register(@Body() registerData: registerdto) {
@@ -34,7 +36,24 @@ export class AuthController {
       );
     }
   }
+ @Post('verify-otp')
+  async verifyOtp(
+    @Body('email') email: string,
+    @Body('otp') otp: string,
+  ) {
 
+    return this.emailService.verifyOtp(email, otp);
+  }
+
+  @Post('resend-otp')
+  async resendOtp(@Body('email') email: string) {
+
+    await this.emailService.resendOtp(email);
+
+    return {
+      message: 'OTP resent successfully'
+    };
+  }
   @Post('login')
   async login(@Body() credential: logindto) {
     try {
