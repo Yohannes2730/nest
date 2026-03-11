@@ -21,7 +21,7 @@ export class EmailService {
     return randomInt(100000, 999999).toString();
   }
 
-  async sendOtp(email: string): Promise<{ message: string }> {
+  async sendOtp(email: string ): Promise<{ message: string }> {
     if (!email) throw new BadRequestException('Email is required');
 
     const otp = this.generateOtp();
@@ -49,6 +49,7 @@ export class EmailService {
 
 
     return { message: 'OTP sent to your email' };
+  
   }
 
   async verifyOtp(email: string, otp: string) {
