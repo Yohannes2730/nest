@@ -36,6 +36,7 @@ export class AuthController {
       );
     }
   }
+  //here we will verify the otp sent to the user's email after registration
  @Post('verify-otp')
   async verifyOtp(
     @Body('email') email: string,
