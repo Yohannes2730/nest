@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { User } from 'src/auth/Schema/user.schema';
-import { EmailOtp } from './entities/email.entity';
+import { EmailOtp } from './Schema/email.schema';
 import { randomInt } from 'crypto';
 
 @Injectable()

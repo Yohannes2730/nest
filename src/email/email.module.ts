@@ -3,7 +3,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailService } from './email.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, userSchema } from 'src/auth/Schema/user.schema';
-import { EmailOtp, EmailOtpSchema } from './entities/email.entity';
+import { EmailOtp, EmailOtpSchema } from './Schema/email.schema';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
