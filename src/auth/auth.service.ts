@@ -26,7 +26,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
   ) {}
-
+  //register
   async register(registerData: registerdto) {
     const { name, email, password } = registerData;
 
@@ -97,7 +97,7 @@ export class AuthService {
       expiresAt: expiryDate,
     });
   }
-
+   // here is resetPassword
   async resetPassword(resetToken: string, newPassword: string) {
     const token = await this.resetTokenModel.findOne({
       token: resetToken,
@@ -113,7 +113,7 @@ export class AuthService {
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
   }
-
+    //here is the refresh token
   async refreshTokens(refreshToken: string) {
     const token = await this.refreshTokenModel.findOne({
       token: refreshToken,
@@ -132,7 +132,7 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
-
+   // Store refresh token in database
   async storeRefreshToken(token: string, userId: string) {
     const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await this.refreshTokenModel.create({
