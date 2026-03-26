@@ -38,7 +38,6 @@ export class EmailService {
       resendCount: 0,
       lastResendAt: new Date(),
     });
-
     await this.mailerService.sendMail({
       to: email,
       from: `"Your App Name" <${process.env.MAIL_USER}>`,
@@ -46,12 +45,9 @@ export class EmailService {
       text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
       html: `<p>Your OTP code is <b>${otp}</b>. It will expire in 5 minutes.</p>`,
     });
-
-
     return { message: 'OTP sent to your email' };
   
   }
-
   async verifyOtp(email: string, otp: string) {
     if (!email) throw new BadRequestException('Email is required');
 
@@ -95,12 +91,10 @@ export class EmailService {
             'Please wait 60 seconds before resending OTP',
           );
       }
-
       record.resendCount += 1;
       record.lastResendAt = now;
       await record.save();
     }
-
     return this.sendOtp(email);
   }
 }
