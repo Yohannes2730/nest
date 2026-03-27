@@ -15,7 +15,6 @@ import config from './config/config';
       isGlobal: true,
       load: [config],
     }),
-
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -38,7 +37,6 @@ import config from './config/config';
       };
       },
     }),
-
     AuthModule,
 
     EmailModule,
